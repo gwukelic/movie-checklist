@@ -6,5 +6,5 @@ const express = require('express');
 const app = express();
 
 app
-  .use(express.static(path.join(__dirname, 'dist/movieChecklistApp' )))
+  .use(express.static(path.join(__dirname, 'dist/movie-checklist' )))
   .listen(port, () => console.log(`Express listening on port ${ port }`));
