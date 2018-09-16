@@ -1,0 +1,437 @@
+Create the project folder
+    cd to the directory you want then
+    mkdir xxxxxx
+    cd into the directory
+
+Create your Angular App and Components
+    ng new my-app
+    cd my-app
+    ng generate component task
+    cd src
+    cd app
+    cd task (nested components below if you need them)
+    ng generate component task-list
+    ng generate component task-new
+    ng generate service task
+
+    creates this below vvvvvv
+
+    my-app
+        parent-component
+            child-component
+            child-component
+        service
+        app.component.ts
+        app.component.html
+        app.component.css
+        app.module.ts
+    assets
+    environemnets
+    etc.
+
+Create a service
+
+    We'll set up our service by navigating to our Angular app 
+    in our terminal and running this line:
+
+    ng generate service http   (ng g s xxxxxx)
+
+    Here, we're naming our service 'http', but you may name it whatever you like.
+    This gives us a file called http.service.ts. Open this file and you'll see 
+    that we are exporting a class called HttpService, which means another file can import it!
+
+Register the service
+
+    To use our service, we'll need to register it with the app. 
+    Open app.module.ts and import HttpService. Provide the file path to 
+    your service file. Next, include HttpService in the array of providers.
+
+    .../app/app.module.ts
+
+    import { HttpService } from './http.service';
+    @NgModule({
+    ...
+    providers: [HttpService],
+    ...
+    })
+
+HttpClient
+
+    We made our service so that it can fetch data from our database, but it can't 
+    do that unless it can make http requests! Therefore, we'll need our project 
+    to import the HttpClientModule. Let's import it and include it in the array of imports.
+
+    .../app/app.module.ts
+
+    import { HttpClientModule } from '@angular/common/http';
+    @NgModule({
+    ...
+    imports: [
+        BrowserModule,
+        HttpClientModule
+    ],
+    ...
+    })
+
+Dependency injection
+
+    We use dependency injection when one part of our app depends on another. 
+    For example, our service depends on HttpClient to make http requests! 
+    First, we'll import HttpClient into the service. Then, we'll make it an 
+    attribute in the class. This way, our service may refer to HttpClient and 
+    use its methods. Include the constructor method in the class and make a 
+    private attribute that is assigned to HttpClient. Convention states that 
+    this attribute should be preceded by an underscore.
+
+    .../app/http.service.ts
+
+    import { HttpClient } from '@angular/common/http';
+
+    export class HttpService {
+        constructor(private _http: HttpClient){}
+    }
+
+    The other dependency injection we'll need is injecting the service into a component. 
+    A service will not be used unless it is required by a component, so let's open our 
+    root component's .ts file. Import the service and make it an attribute in the class.
+
+    .../app/app.component.ts
+
+    import { HttpService } from './http.service';
+
+    export class AppComponent {
+        title = 'app';
+        constructor(private _httpService: HttpService){}
+    }
+
+Fetch data from the database
+
+    Now we're all set up to start making http requests from the service! Let's begin 
+    by using the route in our Restful Task API assignment that fetches all tasks. Make a 
+    function called getTasks(). It will use the http module's .get() method to go to our 
+    route (in this example, that route is /tasks). Since Angular returns an Observable, 
+    let's store it in a variable and subscribe. For now, just have your service print the 
+    data that we get back.
+
+    .../app/http.service.ts
+
+    getTasks(){
+        // our http response is an Observable, store it in a variable
+        let tempObservable = this._http.get('/tasks');
+        // subscribe to the Observable and provide the code we would like to do with our data from the response
+        tempObservable.subscribe(data => console.log("Got our tasks!", data));
+    }
+
+    To invoke this function, let's call it in the constructor method of our service.
+     This way, it will be the first thing our service will do.
+
+    .../app/http.service.ts
+
+    export class HttpService {
+        constructor(private _http: HttpClient){
+            this.getTasks();
+        }
+    }
+
+    Run your project, open Inspect Element in your browser, and you should see your 
+    tasks being printed in the console!
+
+Install Express, Body-Parser, Mongoose
+    npm i -S express, mongoose, body-parser
+    npm install -save express
+    our
+    yard add ....
+
+Create the server folders andd server.js file and its contents
+    go to root directory
+
+    server
+        config
+        controllers
+        models
+
+    server.js
+
+    const express = require("express");     // Load the express module and store it in the variable express
+    const path = require('path');           // bring in path
+    const bodyParser = require('body');     // bring in body-parser
+    const port = process.env.PORT || 8000;  // grab for all our environments or set up port 8000
+    const app = express();                  // invoke express and store the result in the variable app
+
+    // not required but helps 
+    // yarn add morgan or npm i -S morgan??? its a logger....
+    // const logger = require('morgan');
+
+    // load middlewear
+    app.use(bodyParser.urlencoded({ extended: true }))                  // with its urlencoded we can extend true      
+        .use(bodyParser.json())                                         // you can chain off of app.use if you want
+        .use(express.static(path.join(__dirname, 'dist/public' )))    //this case 'dist/Books'  // helps us serve static files and will be all of our angular files when we are done
+            // __dirname => absolute path to the current working directory;
+            // change angular.json file  "outputPath": "dist/xxxx" => ""outputPath": "dist/public" OR int this case.... "dist/Books"
+        .use(logger('dev'))                                             // needs some sort of formatting so development formatting is what we use
+
+    // tell the express app to listen on port 8000, always put this at the end of your server.js file
+    app.list(port, () => console.log(`Express server listening on port: ${port}`));
+
+
+    Create an entry point  (where you want you want your entry point and in )
+    // note npm creates entry point but angular cli doesnt thats why we have to add it ourselves
+        
+        option 1. 
+        // go to package.json
+        // add "main": "server.js",
+        },
+            "main": "server.js",  <=============
+            "private": true,
+            "dependencies": {
+        
+        option 2. 
+        // in your server folder on the root directory create app.js 
+        server
+            config
+            controllers
+            models
+        app.js <========
+
+        //then go to package.json
+        // add "main": "app.js",
+        },
+            "main": "app.js",  <=============
+            "private": true,
+            "dependencies": {
+
+    run the file using:
+        nodemon server.js   in the terminal
+
+
+Set up models and classes 
+    in your models folder you should have something like this...
+
+    const mongoose = require('mongoose'); //this remembers every model your require
+    const { Schema } = mongoose; // destructing schema from mongoose
+
+    const bookSchema = new Schema ({
+        title: {
+            type: String,
+            required: [true, 'provide a book title'],
+            trim: true,
+        },
+        pages: {
+            type: Number,
+            min: 1,
+            required: true,
+        },
+        publisher: String,
+        year: Number,
+        author: {
+            type: String,
+            required: true,
+            trim: true,
+        }
+    }, 
+        {
+        timestamps: true // not required but you can add timestamps
+    });
+
+    angular app root folder same as componets
+    create models folder
+    // match this content above with your class in book.ts file in your angular app  ex book.ts
+    create index.ts that refrences  above
+
+
+
+    // make this available outside this file.
+    // when we require this file somewhere this will bring it into the memory
+    // register this with mongoose through the model method and give it book and the schema
+    module.exports = mongoose.model('Book', bookSchema)
+
+    // now match this content above with your class in book.ts file in your angular app.
+    // book.ts file 
+        export class Book {
+        id: number; // mongoose gives the id like _id and will change
+        title: string;
+        author: string;
+        pages: string;
+        year: number;
+        publisher: string;
+
+        constructor( /* might add http sevice in here or somethin */ ){
+            //this.id = Math.round(Math.random() * 1000)
+        }
+    }
+
+Set up database configuration
+
+    const mongoose = require('mongoose');  // require loads things synchronously to guarantee its finished
+    const path = require('path'); //
+    const fs = require('fs'); // for reading file system. 
+    const reg = new RegExp ('\\.js$', 'i') //Regular expression. escapes the . to not look for the character but the .js and ends on $ and the i is case insensitive 
+
+    const modelsPath = path.resolve('server', 'models'); 
+        // goes from root of application directory then goes into server then goes into models directroy
+    // const modelsPath = path.join(__dirname, '../models');    
+        // in case the other one doesnt work above
+        // goes to current working directroy then up a directory and then down into models.
+
+    mongoose.connect('mongodb://localhost:27017/books', { useNewUrlParser: true }); //connects to mongodb and will create it if it doesnt exists
+    mongoose.connection.on('connected', () => console.log ('Connected')); 
+        // listen to (connected) event emiiter and es6 function a message when connected
+
+
+            // if you are on an older version of mongoose less than version 5....use this below
+    // mongoose.Promise = global.Promise;   
+            // overwrite built in mongoose promise library and you can use this or bluebird or hue....
+            // functianilty is the same they all have a then and catch and are context standard
+
+        // why do we want synchrnous vs asynchrous.
+        // beacuse the models are being depended on by other things we need synchrous to make sure it reads it and not possibly have to wait by xxxx amount of time from the asynch
+    fs.readdirSync(modelsPath).forEach(file => {
+        if (reg.test(file)) {
+            require(path.join(modelsPath, file));  //needs an absolute path because of modelsPath
+        }
+    });
+
+Set Up Controller 
+
+    // requires the model and one resource and the resource is book...
+    // requires mongoose and then the book off of it
+    const Book = require('mongoose').model('Book');   // reads this once and stores it in memory
+
+    // exports a serious of functions linked with keys for CRUD methods but no update at this time 
+    module.exports = {
+        // get all of a particular resource
+        index(request, response) { 
+            Book.find({}) //find all books
+                .then(people => response.json(people)) // on success gives an array of books and responds in json
+                .catch(error => response.json(error)); // on failure sends errors in json (you can you full error map catch method find it....)
+        },
+        //   C- Create resource 
+        create(request, response) {
+            Book.create(request.body) // since we match information in our angular field/model we can pass in request.body
+                .then(book => response.json(book)) // singular book object we can send back in json
+                .catch(error => { // map an array of strings of the fields that field and gets the key one at a time and turn it into a error message in a new array  as strings and send it back 
+                    response
+                        .status(500) // send response error find the correct error number for each error
+                        .json(
+                            Object.keys(error.errors).map(key => error.errors[key].message)
+                    );
+                }); 
+        },  
+        //   R - Read or get a single resource
+        show(request, response) {
+            Book.findById(request.params.book_id) // find singular resource by id from paramaters and define it as book_id and that will be in routing
+            .then(book => {response.json(book);
+            })
+            .catch(error => response.json(error));
+        },
+        // update a resource 
+        update(request, response) {
+            Book.findByIdAndUpdate(request.params.book_id, request.body, {new: true})
+            // request.params.book_id finds the object by id
+            // request.body content of the book/object you want to update
+            // if you want the old object do not add {new: true}
+            // if you need the new object you need to specify you want the new option add {new: true}
+            .then(book => response.json(book)) // singular book object we can send back in json
+            .catch(error => { // map an array of strings of the fields that field and gets the key one at a time and turn it into a error message in a new array  as strings and send it back 
+                response
+                    .status(500) // send response error find the correct error number for each error
+                    .json(
+                        Object.keys(error.errors).map(key => error.errors[key].message)
+                );
+            }); 
+        },
+        //   D-Destroy/Delete a resource  (destroy is a rails thing...)
+        destroy(request, response) {
+            Book.findByIdAndRemove(request.params.book_id)
+            .then(result => response.json(book))
+            .catch(error => response.json(error));
+        },
+    };
+
+Set up routes
+
+    1.
+    ng generate module app-routing --flat --module=app
+    // --flat puts it in the src/app foler rather than its own
+    // --module=app tells the CLI to register it in the imports array of the AppModule.
+
+    delete common module in the new .ts file
+    delete declarations
+    You'll configure the router with Routes in the RouterModule so import those two symbols from the @angular/router library.
+    import { RouterModule, Routes } from '@angular/router';
+
+    2.
+    create routes folder within server folder 
+    create book.routes.js
+
+    // non barrelling -------> const { bookController } = require('../controllers/book.controller');  //up a level and require controllers
+    const { bookController } = require('../controllers');  //up a level and require controllers
+    const router = require('express').Router(); // create our own router from invoking express and attachign .Router()
+
+
+    // resource based restful routing
+    module.exports = router  //export router and chain off of it
+        .get('/', bookController.index) //refrencing book.controller.js index() method
+        .post('/', bookController.create) //refrencing book.controller.js create() method
+        .get('/:book_id', bookController.show) //refrencing book.controller.js show() method
+        .put('/:book_id', bookController.update) //refrencing book.controller.js update () method
+        .delete('/:book_id', bookController.destroy) //refrencing book.controller.js destry () method
+
+    3.
+    now........
+
+    go to routes folder 
+    create index.js 
+    //barreling and using modular routing
+
+    add this
+
+    const bookRoute = require('./book.routes') //relative routing
+    const router = require('express').Router();
+
+    module.exports = router.use('books', bookRoute) // mount the book route on a particular path/prefix 
+        // merge /books with all the other routes we created in book.routes.js like /books/:book_id
+
+    now.......
+    go to server.js to set up all the routing we just set up
+
+    // require database configurattion in relative path form as so
+    require('./server/config/database');   
+
+    //then... add it to app.use  
+    app.use(bodyParser.urlencoded({ extended: true })) 
+        .use(require('./server/routes'));
+        // gonna reference route directoy that only has one mounted now but will have all them
+        // utilze as if it were middle wear now
+
+    trouble shooting route route. 
+        make sure to change express static directory for the root route
+
+        angular might not be intiated/ running yet so go to package.json
+        in scripts make sure it looks like this....
+        "build": "ng build --prod",
+
+        had to use npm run build or yarn run build
+
+        or ng build from the command line from the root of your ANGULAR project
+        aka first layer into project
+
+
+    create a catch-all.routes.js 
+
+    const router = require('express').Router();
+    const path = require('path');
+
+    router.all('*', function(request, response) {
+        response.sendFile(path.resolve('dist/Books/index.html')) //angular 6 will have  the project name otherwise dist/index.html
+        // response.sendFile(path.join(__dirname, '../../dist/index.html'))
+    })  //matches every kind of request
+    // ex. get, put, post, delete 
+    // handles server aspect if its not found on server then if its still not found will load in angular
+
+    module.exports = router;
+
+sdslfkma
+
+
+
