@@ -1,0 +1,50 @@
+######################################################################
+                            TEMPLATE ROUTES
+######################################################################
+
+mymoviechecklist.com/main (app component)
+    main
+        nav-bar
+            home
+            about
+            user_dashboard
+            logout
+            contact
+            ???
+
+mymoviechecklist.com/home  (home component)
+    home.html
+        Pipe all these out of the database
+        {{ TOP 10 }}
+        {{ TOP 10 BY GENRE}}
+        {{ 10 Random }}
+        {{ Hottest 10 this month or week }}
+
+mymoviechecklist.com/login_registration
+    login_registration.html
+        login form
+        registration form
+
+mymoviechecklist.com/user_dashboard
+    user_dashboard.html
+        favorites
+        list to watch
+        friends
+        personal info
+        top pick for the user
+
+######################################################################
+                            REDIRECT ROUTES
+######################################################################
+
+mymoviechecklist.com/login
+    validates all form data and it matches database and stores session info
+    redirect to main
+
+mymoviechecklist.com/registration
+    validates all form data then submits into the database, and stores session info
+    redirect to main
+
+mymoviechecklist.com/logout 
+    clears session and cookies
+    redirects to main
